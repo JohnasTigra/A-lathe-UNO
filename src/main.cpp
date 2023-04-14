@@ -1,9 +1,13 @@
+#include <Arduino.h>
 //for display
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h> //http://wiki.sunfounder.cc/index.php?title=I2C_LCD2004#Step_2:Add_library
 LiquidCrystal_I2C lcd(0x27,20,4);  // set the LCD address to 0x27 for a 16 chars and 2 line display
 
-//for Menu & Buttons https://www.youtube.com/watch?v=qrziemoqjlM
+//for Menu & Buttons 
+//https://www.youtube.com/watch?v=qrziemoqjlM
+//https://www.youtube.com/watch?v=qqUsK92rgxc
+#include "getUserMenu.h" // menu = getUserMenu ();
 enum pageType (root_menu, run_as_lathe, run_as_step); // all menu page options 
 enum pageType currPage = root_menu; // holds current page
 // constant port address
@@ -16,8 +20,8 @@ const int btn_cancel = D7 ; // D7 is E on shield
 
 //for fastaccelstepper
 #include "FastAccelStepper.h" //https://github.com/gin66/FastAccelStepper/blob/master/src/FastAccelStepper.h
-#define stepPinStepper 9// for avr: either use pin 9 or 10 aka OC1A or OC1B
-#define dirPinStepper 10 //#define enablePinStepper 26
+const int stepPinStepper 9// for avr: either use pin 9 or 10 aka OC1A or OC1B
+const int dirPinStepper 10 //#define enablePinStepper 26
 FastAccelStepperEngine engine = FastAccelStepperEngine();
 FastAccelStepper *stepper = NULL;
 // for making PWM in 
@@ -49,10 +53,6 @@ void pwmToStepper(); // Driver
 void LCD();  // you guessed it ! 
 void menu(); // menu and buttons
 
-//thingas to do , set threshold for pot to make rpm stable and stop is not 0 rpm at moment 
-// stepper in separate void ?? 
-//LCD in separate void 
-// snygga till samplearte
 void loop() {
   if (micros() - last_us > PERIOD) //samplerate on PWM in
  {
@@ -61,7 +61,7 @@ void loop() {
   LCD(); // update LCD 
  }
  pwmToStepper();
- menu();
+ getUserMenu();
 
 }
 
@@ -86,12 +86,4 @@ void LCD(){
   lcd.setCursor ( 0, 3 );            // go to the fourth row
   lcd.print(" even more more text ");
 
-}
-
-void menu(){
-  switch (currPage){
-    case root_menu: page_root_menu(); break; //welcome splash 
-    case run_as_lathe: page_run_as_lathe(); break; // X , Z axis in stepping mode and C axis rotating as spindle. 
-    case run_as_step: page_run_as_step(); break; // X , Z , C in stepping increment mode.
-  }
 }
